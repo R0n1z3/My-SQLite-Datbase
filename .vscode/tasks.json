@@ -1,0 +1,39 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build app.exe",
+            "type": "process",
+            "command": "C:/Qt/Tools/mingw1310_64/bin/g++.exe",
+            "args": [
+                "-g",
+                "-std=gnu++17",
+                "-Wall",
+                "${workspaceFolder}/src/main.cpp",
+                "${workspaceFolder}/src/auth.cpp",
+                "${workspaceFolder}/src/database.cpp",
+                "-I${workspaceFolder}/include",
+                "-IC:/Qt/Tools/mingw1310_64/opt/include",
+                "-LC:/Qt/Tools/mingw1310_64/opt/lib",
+                "-lsqlite3",
+                "-o",
+                "${workspaceFolder}/app.exe"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared",
+                "clear": true
+            }
+        }
+    ]
+}

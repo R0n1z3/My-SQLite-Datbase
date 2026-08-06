@@ -5,14 +5,15 @@
             "includePath": [
                 "${workspaceFolder}/include",
                 "${workspaceFolder}/src",
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "C:/Qt/Tools/mingw1310_64/opt/include"
             ],
             "defines": [
                 "_DEBUG",
                 "UNICODE",
                 "_UNICODE"
             ],
-            "compilerPath": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe",
+            "compilerPath": "C:\\Qt\\Tools\\mingw1310_64\\bin\\g++.exe",
             "cStandard": "c17",
             "cppStandard": "gnu++17",
             "intelliSenseMode": "windows-gcc-x64"
