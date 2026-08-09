@@ -3,15 +3,12 @@
 
 bool openConnection(sqlite3** db, const std::string& dbPath) {
     
-    sqlite3* myDb = nullptr; // This is the pointer to the database connection handle.
-    sqlite3* errmsg = nullptr; // This pointer is for the error message that gets returned if the database connection fails. 
+    sqlite3* myDb = nullptr; // This is the pointer to the database connection handle. 
     int rc = sqlite3_open(dbPath.c_str(), &myDb); // RC holds the status of the connection to the database.
     // We check the return code  of sqlite3_open() to see what happened.
     if(rc != SQLITE_OK) {
         // Since the return code failed we simply print and error message telling what happened and close the attemped connection to the database.
-        errmsg = myDb;
-        std::cout << "Connection Failed: " << sqlite3_errmsg(errmsg) << " " << std::endl;
-        sqlite3_close(myDb);
+        std::cout << "Connection Failed: " << sqlite3_errmsg(myDb) << " " << std::endl;
         int cc = sqlite3_close(myDb);
         // We check to see if sqlite3_close() closed the database connection.
         if(cc != SQLITE_OK) {
@@ -25,12 +22,8 @@ bool openConnection(sqlite3** db, const std::string& dbPath) {
     int pragmaResult = sqlite3_exec(*db, "PRAGMA foreign_keys = ON;", nullptr, nullptr, nullptr);
     // If enabling foreign keys fails we close the connection to the database.
     if(pragmaResult != SQLITE_OK) {
-        int cc = sqlite3_close(myDb);
-        std::cout << "Failed to enable foreign keys" << std::endl;
-        sqlite3_close(myDb);
-        if(cc != SQLITE_OK) {
-            std::cout << "Not closed yet: " << cc <<  "." << std::endl;
-        }
+        std::cout << "Failed to enable foreign keys: " << sqlite3_errmsg(myDb) << std::endl;
+        closeConnection(db);
         return false;
     }
     return true;
@@ -57,4 +50,26 @@ bool schemaInit(sqlite3* db) {
 
     return true;
 
+}
+
+bool closeConnection(sqlite3** db) {
+    // We verify that our database is active and not null. If it is then we simply just return true because there is nothing left to close.
+    if(db == nullptr || *db == nullptr) {
+
+        return true;
+
+    }
+    // We attempt to close the database connection and if it fails we print whhy it failed.
+    int cc = sqlite3_close(*db);
+
+    if(cc != SQLITE_OK) {
+
+        std::cout << "Failed to Close: " << sqlite3_errmsg(*db) << std::endl;
+        return false;
+
+    }
+
+    // If database connection closed then we set the database handle back to null and return true. Letting everybody know the close was successful.
+    *db = nullptr;
+    return true;
 }
