@@ -4,4 +4,4 @@
 
 bool openConnection(sqlite3** db, const std::string& dbPath);
 void closeConnection();
-void schemaInit();
+bool schemaInit(sqlite3* db);
