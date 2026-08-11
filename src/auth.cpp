@@ -38,17 +38,46 @@ std::string getPassword() {
     return password;
 }
 
-void registerUser() {
+RegisterStatus registerUser(sqlite3* db) {
+    // We check to see if the database handle is null and if it is we return REGISTER_DB_ERROR. So we don't continue.
+    if(db == nullptr) {
+        std::cout << "Database handle is null" << std::endl;
+        return REGISTER_DB_ERROR;
+    }
+    sqlite3_stmt* stmt = nullptr;
+    const char* sql = "INSERT INTO users (username, password_hash) VALUES (?, ?)";
     // We are going to register a new user by asking for their username and password and storing it in a database.
     std::cout << "Registering a new user... " << std::endl;
     std::string username = getUsername();
     std::string password = getPassword();
-    // Store the username and password in a database (in this case, a text file).
-    std::ofstream database("database.txt", std::ios::app);//edit this for sql
-    // This line controls the format of the database. Each line will contain a username and password separated by a space.
-    database << username << " " << password << std::endl; //edit this for sql
-}
+    // Next we will prepare the staments and bind the users inputs into the dataslots. If sqlite3_prepare() returns anything other than SQLITE_OK we print the error and return REGISTER_DB_ERROR. 
+    int preprc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+    if(preprc != SQLITE_OK) {
 
+        std::cout << "Error: " << sqlite3_errmsg(db) << std::endl;
+        return REGISTER_DB_ERROR;
+
+    }
+    sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, password.c_str(), -1, SQLITE_TRANSIENT);
+    int rc = sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+    // We check to see what sqlite3_step() returned so understand what happened so we can return the correct enum.
+    switch(rc) {
+        
+        case SQLITE_DONE:    
+            return REGISTER_SUCCESS;
+        
+        case SQLITE_CONSTRAINT:
+            std::cout << "Error: " << sqlite3_errmsg(db) << std::endl;
+            return REGISTER_DUPLICATE;
+    
+        default:
+            std::cout << "Error: " << sqlite3_errmsg(db) << std::endl;
+            return REGISTER_DB_ERROR;
+
+    }
+}
 void checkCredentials(const std::string& username, const std::string& password) {
     // We are going to check the credentials against the database. 
     std::ifstream database("database.txt");
