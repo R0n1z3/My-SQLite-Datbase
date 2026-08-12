@@ -78,45 +78,59 @@ RegisterStatus registerUser(sqlite3* db) {
 
     }
 }
-void checkCredentials(const std::string& username, const std::string& password) {
-    // We are going to check the credentials against the database. 
-    std::ifstream database("database.txt");
-    enum statusCode {
-        SUCCESS,
-        WRONG_PASSWORD,
-        USER_NOT_FOUND,
-        DEFAULT
-    };
-    enum statusCode status = DEFAULT;
-    std::string storedUsername;
-    std::string storedPassword;
-    // We are going to read the database line by line and check if the username and password match.
-    while(database >> storedUsername >> storedPassword) {
-        if(storedUsername == username && storedPassword == password) {
-            status = SUCCESS;
-            break;
-        }
-        else if(storedUsername == username && storedPassword != password) {
-            status = WRONG_PASSWORD;
-            break;
-        }
+LoginStatus loginUser(sqlite3* db, const std::string& username, const std::string& password) {
+    // We make sure the database handle is not null if so we return LOGIN_ERROR and exit the function.
+    if(db == nullptr) {
+
+        return LOGIN_ERROR;
+    }
+    // We initliaze the sqlite3_stmt object so we can have a placeholder for our dataslots.
+    sqlite3_stmt* stmt = nullptr;
+    // sql holds sql code.
+    const char* sql = "SELECT password_hash FROM users WHERE username = ?";
+    // We prepare the dataslots that stmt holds.
+    int preprc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+
+    if(preprc != SQLITE_OK) {
+
+        std::cout << "Error: " << sqlite3_errmsg(db) << std::endl;
+        return LOGIN_ERROR;
+    }
+    
+    sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_TRANSIENT);
+    int rc = sqlite3_step(stmt);
+    std::string spassword;
+    // If sqlite3_step() returns SQLITE_ROW then we know that the username matched and we need to capture the password to our variable and compare them later. 
+    if(rc == SQLITE_ROW) {
+
+        const unsigned char* fetchedPassword = sqlite3_column_text(stmt, 0);
+        spassword = std::string(reinterpret_cast<char const*>(fetchedPassword));
+    
     }
 
-    if(status != SUCCESS && status != WRONG_PASSWORD) {
+    sqlite3_finalize(stmt);
+    // We check the return code of sqlite3_step() again and decide what to return.
+    switch(rc) {
 
-        status = USER_NOT_FOUND;
-    }
+        case SQLITE_ROW: {
 
-    switch (status) {
-        case SUCCESS: 
-            std::cout << "Login Successful. " << std::endl;
-            break;
-        case WRONG_PASSWORD:
-            std::cout << "The password is incorrect. Please try again: " << std::endl;
-            break;
-        case USER_NOT_FOUND: 
-            std::cout << "Username was not found. " << std::endl;
-            break;
+            if(password == spassword) {
+                return LOGIN_SUCCESS;
+            }
+            
+            else{
+                return LOGIN_WRONG_PASSWORD;
+            }
+        }
+
+        case SQLITE_DONE:
+
+            return LOGIN_USER_NOT_FOUND;
+
+        default: 
+
+            return LOGIN_ERROR;
+
     }
 }
 

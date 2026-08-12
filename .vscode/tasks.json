@@ -9,6 +9,8 @@
                 "-g",
                 "-std=gnu++17",
                 "-Wall",
+                "-Wextra",
+                "-Wshadow",
                 "${workspaceFolder}/src/main.cpp",
                 "${workspaceFolder}/src/auth.cpp",
                 "${workspaceFolder}/src/database.cpp",
