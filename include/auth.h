@@ -1,7 +1,5 @@
 #include <iostream>
 #include <string>
-#include <fstream>
-#include <cstdlib>
 #include <cctype>
 #include <sqlite3.h>
 
