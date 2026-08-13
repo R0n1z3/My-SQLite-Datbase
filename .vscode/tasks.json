@@ -15,11 +15,14 @@
                 "${workspaceFolder}/src/auth.cpp",
                 "${workspaceFolder}/src/database.cpp",
                 "-I${workspaceFolder}/include",
+                "-I${workspaceFolder}/third_party/Bcrypt.cpp/include",
                 "-IC:/Qt/Tools/mingw1310_64/opt/include",
                 "-LC:/Qt/Tools/mingw1310_64/opt/lib",
                 "-lsqlite3",
                 "-o",
-                "${workspaceFolder}/app.exe"
+                "${workspaceFolder}/app.exe",
+                "${workspaceFolder}/third_party/Bcrypt.cpp/src/bcrypt.cpp",
+                "${workspaceFolder}/third_party/Bcrypt.cpp/src/blowfish.cpp"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"

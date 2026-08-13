@@ -1,10 +1,11 @@
 #include "auth.h"
+#include <bcrypt.h>
 
 
 
 std::string getUsername() {
     // We are going to ask the user for their username and return it.
-    int usernameLength = 5;
+    long long unsigned int usernameLength = 5;
     std::cout << "Enter your username: ";
     std::string username;
     std::cin >> username;
@@ -25,11 +26,11 @@ std::string getUsername() {
 
 std::string getPassword() {
     // We are going to ask the user for their password and return it.
-    std::cout << "Enter your password with at least 2 uppercase characters: ";
+    std::cout << "Enter your password: " << std::endl;
     std::string password;
     std::cin >> password;
     while(!isUpper(password)) {
-        std::cout << "Please enter another password with at least 2 uppercase characters: " << std::endl;
+        std::cout << "Please try entering a better password: " << std::endl;
         std::cin >> password;
         if(isUpper(password)) {
             return password;
@@ -59,7 +60,8 @@ RegisterStatus registerUser(sqlite3* db) {
 
     }
     sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 2, password.c_str(), -1, SQLITE_TRANSIENT);
+    std::string hashedPassword = bcrypt::generateHash(password);
+    sqlite3_bind_text(stmt, 2, hashedPassword.c_str(), -1, SQLITE_TRANSIENT);
     int rc = sqlite3_step(stmt);
     sqlite3_finalize(stmt);
     // We check to see what sqlite3_step() returned so understand what happened so we can return the correct enum.
@@ -114,7 +116,7 @@ LoginStatus loginUser(sqlite3* db, const std::string& username, const std::strin
 
         case SQLITE_ROW: {
 
-            if(password == spassword) {
+            if(bcrypt::validatePassword(password, spassword)) {
                 return LOGIN_SUCCESS;
             }
             
@@ -137,7 +139,7 @@ LoginStatus loginUser(sqlite3* db, const std::string& username, const std::strin
 bool isUpper(const std::string& password) {
     // This function is going to take in a string and return true if the string has at least 2 uppercase characters.
     int upperCount = 0;
-    for(int a = 0; a < password.length(); a++) {
+    for(long long unsigned int a = 0; a < password.length(); a++) {
         if(std::isupper(password[a])) {
             upperCount++;
         }

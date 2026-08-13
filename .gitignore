@@ -1,0 +1,21 @@
+# ---- Build output ----
+# app.exe is rebuilt by the "build app.exe" task on every run.
+*.exe
+*.o
+*.obj
+*.d
+
+# ---- SQLite database ----
+# users.db is created automatically at startup by openConnection() +
+# schemaInit(), so it does not need to be in the repo. Ignoring it also
+# keeps real usernames and bcrypt password hashes out of a public repository.
+# NOTE: src/database/.gitkeep is tracked on purpose - SQLite will not create
+# a missing folder, so the directory itself has to survive a fresh clone.
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# ---- OS / editor noise ----
+.DS_Store
+Thumbs.db

@@ -6,7 +6,8 @@
                 "${workspaceFolder}/include",
                 "${workspaceFolder}/src",
                 "${workspaceFolder}/**",
-                "C:/Qt/Tools/mingw1310_64/opt/include"
+                "C:/Qt/Tools/mingw1310_64/opt/include",
+                "${workspaceFolder}/third_party/Bcrypt.cpp/include"
             ],
             "defines": [
                 "_DEBUG",
